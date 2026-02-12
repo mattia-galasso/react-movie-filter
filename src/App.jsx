@@ -15,10 +15,14 @@ export default function App() {
   const [filteredFilms, setFilteredFilms] = useState(filmsList);
 
   useEffect(() => {
-    const filteredListUpdated = filmsList.filter((film) => {
-      film.genre === filterGenre;
-    });
-    console.log(filteredListUpdated);
+    if (filterGenre === "") {
+      setFilteredFilms(filmsList);
+    } else {
+      const filteredListUpdated = filmsList.filter(
+        (film) => film.genre.toLowerCase() === filterGenre,
+      );
+      setFilteredFilms(filteredListUpdated);
+    }
   }, [filterGenre]);
 
   return (
