@@ -1,29 +1,39 @@
 import { useEffect, useState } from "react";
+import { movies } from "./data/movies";
 
-const initialFilmsList = [
-  { title: "Inception", genre: "Fantascienza" },
-  { title: "Il Padrino", genre: "Thriller" },
-  { title: "Titanic", genre: "Romantico" },
-  { title: "Batman", genre: "Azione" },
-  { title: "Interstellar", genre: "Fantascienza" },
-  { title: "Pulp Fiction", genre: "Thriller" },
-];
+const genresList = [];
+
+movies.forEach((movie) => {
+  if (!genresList.includes(movie.genre)) genresList.push(movie.genre);
+});
 
 export default function App() {
-  const [filmsList, setFilmsList] = useState(initialFilmsList);
-  const [filterGenre, setFilterGenre] = useState("");
+  /* INITIAL FILMS LIST */
+  const [filmsList, setFilmsList] = useState(movies);
+
+  /* FILMS GENRES FILTER  */
+  const [filterGenre, setFilterGenre] = useState();
+
+  /* SEARCH FILMS */
+  const [searchedFilm, setSearchedFilm] = useState("");
+
+  /* FILTERED LIST */
   const [filteredFilms, setFilteredFilms] = useState(filmsList);
 
   useEffect(() => {
-    if (filterGenre === "") {
-      setFilteredFilms(filmsList);
-    } else {
-      const filteredListUpdated = filmsList.filter(
+    let filteredListUpdated = filmsList.filter((film) => {
+      const sanitizedSearchedFilm = searchedFilm.toLowerCase().trim();
+      const sanitizedFilmsTitle = film.title.toLowerCase().trim();
+      return sanitizedFilmsTitle.includes(sanitizedSearchedFilm);
+    });
+
+    if (filterGenre) {
+      filteredListUpdated = filteredListUpdated.filter(
         (film) => film.genre.toLowerCase() === filterGenre,
       );
       setFilteredFilms(filteredListUpdated);
     }
-  }, [filterGenre]);
+  }, [searchedFilm, filterGenre]);
 
   return (
     <>
@@ -37,27 +47,36 @@ export default function App() {
           {/* MAIN */}
           <div className="card-body">
             {/* SELECT INPUT */}
-            <div className="input-group py-2">
+            <div className="form-floating">
+              <input
+                type="email"
+                className="form-control"
+                id="searchFilm"
+                placeholder="Cerca un film"
+                //
+                value={searchedFilm}
+                onChange={(e) => setSearchedFilm(e.target.value)}
+              />
+              <label htmlFor="searchFilm">Cerca un film</label>
+            </div>
+            <div className="form-floating mt-2">
               <select
                 className="form-select"
                 aria-label="Select Film Genre"
                 id="genre-select"
-                defaultValue={""}
-                onChange={(e) => {
-                  setFilterGenre(e.target.value);
-                }}
+                onChange={(e) => setFilterGenre(e.target.value)}
               >
-                <option value={""}>Seleziona un genere</option>
-                {filmsList.map((film, index) => (
-                  <option key={index} value={film.genre.toLowerCase()}>
-                    {film.genre}
+                <option value={""}>Tutti i generi</option>
+                {genresList.map((genre, index) => (
+                  <option key={index} value={genre.toLowerCase()}>
+                    {genre}
                   </option>
                 ))}
               </select>
+              <label htmlFor="genre-select">Seleziona un genere</label>
             </div>
-
             {/* LIST ITEM */}
-            <ul className="list-group pt-3">
+            <ul className="list-group pt-4">
               {filteredFilms.map((film, index) => (
                 <li key={index} className="list-group-item">
                   {film.title}
